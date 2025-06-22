@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Security Dashboard</h2>
+    
+    <div class="row">
+        <!-- OTP Verification Card -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Verify Gate Pass (OTP)</h5>
+                </div>
+                <div class="card-body">
+                    <form id="otpForm">
+                        <div class="mb-3">
+                            <label for="otp" class="form-label">Enter OTP</label>
+                            <input type="text" class="form-control" id="otp" name="otp" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Verify</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- QR Code Scanner Card -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Scan QR Code</h5>
+                </div>
+                <div class="card-body">
+                    <div id="reader"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Student Details Modal -->
+    <div class="modal fade" id="studentDetailsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Student Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <img id="studentPhoto" src="" alt="Student Photo" 
+                             class="rounded-circle" 
+                             style="width: 150px; height: 150px; object-fit: cover;"
+                             onerror="this.src='/static/default-avatar.png'">
+                    </div>
+                    <p><strong>Name:</strong> <span id="studentName"></span></p>
+                    <p><strong>Roll Number:</strong> <span id="studentRoll"></span></p>
+                    <p><strong>Department:</strong> <span id="studentDept"></span></p>
+                    <p><strong>Out Time:</strong> <span id="outTime"></span></p>
+                    <p><strong>In Time:</strong> <span id="inTime"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include HTML5-QRCode library -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+// Initialize QR code scanner
+const html5QrCode = new Html5Qrcode("reader");
+const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+    try {
+        const qrData = JSON.parse(decodedText);
+        verifyQRCode(qrData);
+    } catch (error) {
+        alert('Invalid QR code');
+    }
+};
+
+const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+
+// Handle OTP form submission
+document.getElementById('otpForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const otp = document.getElementById('otp').value;
+    
+    try {
+        const response = await fetch('/verify_gate_pass', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `otp=${otp}`
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            showStudentDetails(data);
+        } else {
+            alert(data.error || 'Invalid OTP');
+        }
+    } catch (error) {
+        alert('Error verifying OTP');
+    }
+});
+
+// Handle QR code verification
+async function verifyQRCode(qrData) {
+    try {
+        const response = await fetch('/scan_qr_code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(qrData)
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            showStudentDetails(data);
+        } else {
+            alert(data.error || 'Invalid QR code');
+        }
+    } catch (error) {
+        alert('Error scanning QR code');
+    }
+}
+
+// Show student details in modal
+function showStudentDetails(data) {
+    document.getElementById('studentName').textContent = data.name;
+    document.getElementById('studentRoll').textContent = data.roll_number;
+    document.getElementById('studentDept').textContent = data.department;
+    document.getElementById('outTime').textContent = data.out_time;
+    document.getElementById('inTime').textContent = data.in_time;
+    
+    const photoElement = document.getElementById('studentPhoto');
+    if (data.photo) {
+        photoElement.src = data.photo;
+    } else {
+        photoElement.src = '/static/default-avatar.png';
+    }
+    
+    new bootstrap.Modal(document.getElementById('studentDetailsModal')).show();
+}
+</script>
+{% endblock %} 

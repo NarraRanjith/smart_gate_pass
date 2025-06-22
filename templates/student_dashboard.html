@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Student Dashboard</h2>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Student Information</h5>
+                    <div class="text-center mb-3">
+                        {% if current_user.photo %}
+                            <img src="{{ url_for('static', filename='uploads/' + current_user.photo) }}" 
+                                 alt="Student Photo" 
+                                 class="rounded-circle"
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    <p><strong>Name:</strong> {{ current_user.name }}</p>
+                    <p><strong>Roll Number:</strong> {{ current_user.roll_no }}</p>
+                    <p><strong>Department:</strong> {{ current_user.department }}</p>
+                    <p><strong>Email:</strong> {{ current_user.email }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Gate Pass History</h5>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newGatePassModal">
+                        New Gate Pass
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if gate_passes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Purpose</th>
+                                        <th>Out Time</th>
+                                        <th>In Time</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pass in gate_passes %}
+                                        <tr>
+                                            <td>{{ pass.purpose }}</td>
+                                            <td>{{ pass.out_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                            <td>{{ pass.in_time.strftime('%Y-%m-%d %H:%M') if pass.in_time else 'Not returned' }}</td>
+                                            <td>
+                                                <span class="badge {% if pass.status == 'approved' %}bg-success
+                                                                  {% elif pass.status == 'pending' %}bg-warning
+                                                                  {% elif pass.status == 'rejected' %}bg-danger
+                                                                  {% else %}bg-info{% endif %}">
+                                                    {{ pass.status.title() }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if pass.status == 'approved' %}
+                                                    <button type="button" class="btn btn-info btn-sm" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#gatePassModal{{ pass.id }}">
+                                                        Show Details
+                                                    </button>
+                                                    
+                                                    <!-- Gate Pass Details Modal -->
+                                                    <div class="modal fade" id="gatePassModal{{ pass.id }}" tabindex="-1">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Gate Pass Details</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="text-center mb-3">
+                                                                        {% if pass.otp %}
+                                                                            <h6>OTP: {{ pass.otp }}</h6>
+                                                                            {% if pass.qr_code %}
+                                                                                <img src="{{ url_for('static', filename='uploads/' + pass.qr_code) }}" 
+                                                                                     alt="QR Code" 
+                                                                                     style="max-width: 200px;">
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            <div class="alert alert-info">
+                                                                                This gate pass has already been used and verified by security.
+                                                                            </div>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                    <p><strong>Purpose:</strong> {{ pass.purpose }}</p>
+                                                                    <p><strong>Out Time:</strong> {{ pass.out_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                                    <p><strong>In Time:</strong> {{ pass.in_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No gate passes found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Gate Pass Modal -->
+<div class="modal fade" id="newGatePassModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Gate Pass</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('request_gate_pass') }}">
+                    <div class="mb-3">
+                        <label for="purpose" class="form-label">Purpose</label>
+                        <textarea class="form-control" id="purpose" name="purpose" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="out_time" class="form-label">Out Time</label>
+                        <input type="datetime-local" class="form-control" id="out_time" name="out_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="in_time" class="form-label">In Time</label>
+                        <input type="datetime-local" class="form-control" id="in_time" name="in_time" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

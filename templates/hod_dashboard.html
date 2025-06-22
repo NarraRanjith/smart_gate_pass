@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">HOD Dashboard</h2>
+    
+    <!-- Pending Student Verifications -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Pending Student Verifications</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_students %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Roll Number</th>
+                                <th>Email</th>
+                                <th>Photo</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in pending_students %}
+                                <tr>
+                                    <td>{{ student.name }}</td>
+                                    <td>{{ student.roll_number }}</td>
+                                    <td>{{ student.email }}</td>
+                                    <td>
+                                        {% if student.photo_path %}
+                                            <img src="{{ url_for('static', filename='uploads/' + student.photo_path) }}" 
+                                                 alt="Student Photo" 
+                                                 style="width: 50px; height: 50px; object-fit: cover;"
+                                                 class="rounded-circle">
+                                        {% else %}
+                                            No photo
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('verify_student', student_id=student.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-success btn-sm">Verify</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No pending student verifications.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Pending Gate Passes -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Pending Gate Passes</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_passes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Roll Number</th>
+                                <th>Purpose</th>
+                                <th>Out Time</th>
+                                <th>In Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pass in pending_passes %}
+                                <tr>
+                                    <td>{{ pass.student.name }}</td>
+                                    <td>{{ pass.student.roll_number }}</td>
+                                    <td>{{ pass.purpose }}</td>
+                                    <td>{{ pass.out_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ pass.in_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <form method="POST" action="{{ url_for('approve_gate_pass', pass_id=pass.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                            </form>
+                                            <form method="POST" action="{{ url_for('reject_gate_pass', pass_id=pass.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No pending gate passes.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

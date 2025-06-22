@@ -1,0 +1,13 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+qrcode[pil]
+SQLAlchemy
+Werkzeug
+Jinja2
+itsdangerous
+click
+blinker
+MarkupSafe
+colorama
+Pillow 

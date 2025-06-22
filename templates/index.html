@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center">
+    <h1 class="display-4 mb-4">Welcome to College Gate Pass System</h1>
+    <p class="lead mb-4">A secure and efficient way to manage college gate passes</p>
+    
+    {% if not current_user.is_authenticated %}
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Get Started</h5>
+                        <p class="card-text">Choose your role to sign up:</p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('student_signup') }}" class="btn btn-primary">
+                                <i class="bi bi-person-plus"></i> Student Sign Up
+                            </a>
+                            <a href="{{ url_for('hod_signup') }}" class="btn btn-success">
+                                <i class="bi bi-person-badge"></i> HOD Sign Up
+                            </a>
+                            <a href="{{ url_for('security_signup') }}" class="btn btn-info">
+                                <i class="bi bi-shield-check"></i> Security Staff Sign Up
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-success">
+            Welcome back, {{ current_user.name if current_user.name else current_user.email }}!
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 
