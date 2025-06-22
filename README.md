@@ -14,6 +14,7 @@ A professional smart gate pass system for colleges that manages student gate pas
 ## Prerequisites
 
 - Python 3.7 or higher
+- Python 3.12 or lesser
 - pip (Python package installer)
 
 ## Installation
