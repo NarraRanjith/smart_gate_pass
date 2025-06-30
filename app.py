@@ -91,6 +91,7 @@ def generate_qr_code(gate_pass):
     
     # Save QR code to file
     filename = f"gate_pass_{gate_pass.id}.png"
+    app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     img.save(filepath)
     
