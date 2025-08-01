@@ -89,14 +89,3 @@ The application will be available at `http://localhost:5000`
 - File upload validation
 - SQL injection prevention
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed.
