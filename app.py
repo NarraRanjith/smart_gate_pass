@@ -12,28 +12,23 @@ import base64
 from werkzeug.utils import secure_filename
 import json
 
-# Initialize Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key'  # Change this in production
+app.config['SECRET_KEY'] = 'give_any_secret_code_here' 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gate_pass.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
-
-# Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Initialize extensions
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# Models
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
     name = db.Column(db.String(100))
-    role = db.Column(db.String(20), nullable=False)  # admin, hod, student, security
+    role = db.Column(db.String(20), nullable=False) 
     department = db.Column(db.String(50))
     roll_number = db.Column(db.String(20))
     photo_path = db.Column(db.String(200))
@@ -86,10 +81,8 @@ def generate_qr_code(gate_pass):
     qr.add_data(qr_data_str)
     qr.make(fit=True)
     
-    # Create QR code image
     img = qr.make_image(fill_color="black", back_color="white")
     
-    # Save QR code to file
     filename = f"gate_pass_{gate_pass.id}.png"
     app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -97,7 +90,6 @@ def generate_qr_code(gate_pass):
     
     return filename
 
-# Routes
 @app.route('/')
 def index():
     return render_template('index.html')
