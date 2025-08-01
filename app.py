@@ -16,7 +16,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'give_any_secret_code_here' 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gate_pass.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
