@@ -77,15 +77,11 @@ The application will be available at `http://localhost:5000`
 1. Contact admin for account creation
 2. Login to approve/reject gate passes
 
-### Admin
-1. Contact system administrator for account creation
-2. Manage users and system settings
-
 ## Security Features
-
 - Password hashing
 - Role-based access control
 - Session management
 - File upload validation
 - SQL injection prevention
+
 
